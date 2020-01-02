@@ -1,4 +1,4 @@
-package com.leisurexi.rabbitmq;
+package com.leisurexi.rabbitmq.demo;
 
 import com.rabbitmq.client.*;
 import lombok.extern.slf4j.Slf4j;
