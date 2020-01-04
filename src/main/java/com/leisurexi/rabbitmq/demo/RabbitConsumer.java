@@ -26,15 +26,17 @@ public class RabbitConsumer {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setUsername("guest");
         factory.setPassword("guest");
-        try (
-                //创建连接
-                Connection connection = factory.newConnection(addresses);
-                //创建通道
-                Channel channel = connection.createChannel()
-        ) {
+        //创建连接
+        Connection connection = null;
+        //创建通道
+        Channel channel = null;
+        try {
+            connection = factory.newConnection(addresses);
+            channel = connection.createChannel();
             //设置客户端最多接收未被ack的消息的个数
             channel.basicQos(64);
-            DefaultConsumer consumer = new DefaultConsumer(channel) {
+            Channel _channel = channel;
+            DefaultConsumer consumer = new DefaultConsumer(_channel) {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                     log.info("recv message: {}", new String(body));
@@ -43,14 +45,30 @@ public class RabbitConsumer {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    channel.basicAck(envelope.getDeliveryTag(), false);
+                    _channel.basicAck(envelope.getDeliveryTag(), false);
                     countDownLatch.countDown();
                 }
             };
-            channel.basicConsume(QUEUE_NAME, consumer);
+            channel.basicConsume("queue.priority", consumer);
             countDownLatch.await();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (channel != null) {
+                    channel.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
