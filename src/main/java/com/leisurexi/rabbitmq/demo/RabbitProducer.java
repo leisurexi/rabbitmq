@@ -1,6 +1,7 @@
 package com.leisurexi.rabbitmq.demo;
 
-import com.leisurexi.rabbitmq.SendMessage;
+import com.leisurexi.rabbitmq.config.ChannelExecute;
+import com.leisurexi.rabbitmq.config.RabbitMQConfig;
 import com.rabbitmq.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -23,24 +24,18 @@ public class RabbitProducer {
     private static final String EXCHANGE_NAME = "exchange.demo";
     private static final String ROUTING_KEY = "demo-routingKey";
     private static final String QUEUE_NAME = "queue.demo";
-    private static final String IP_ADDRESS = "127.0.0.1";
-    private static final int PORT = 5672;
 
     /**
      * 设置好交换器和队列
      *
      * @param sendMessage
      */
-    private static void execute(SendMessage sendMessage) {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(IP_ADDRESS);
-        factory.setPort(PORT);
-        factory.setUsername("guest");
-        factory.setPassword("guest");
+    private static void execute(ChannelExecute sendMessage) {
+        ConnectionFactory factory = RabbitMQConfig.createConnectionFactory();
         //创建连接
         Connection connection = null;
         //创建通道
-        Channel channel = null;
+        com.rabbitmq.client.Channel channel = null;
         try {
             connection = factory.newConnection();
             channel = connection.createChannel();
@@ -109,16 +104,12 @@ public class RabbitProducer {
      *
      * @param sendMessage
      */
-    private static void executeWithNoSetting(SendMessage sendMessage) {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(IP_ADDRESS);
-        factory.setPort(PORT);
-        factory.setUsername("guest");
-        factory.setPassword("guest");
+    private static void executeWithNoSetting(ChannelExecute sendMessage) {
+        ConnectionFactory factory = RabbitMQConfig.createConnectionFactory();
         //创建连接
         Connection connection = null;
         //创建通道
-        Channel channel = null;
+        com.rabbitmq.client.Channel channel = null;
         try {
             connection = factory.newConnection();
             channel = connection.createChannel();

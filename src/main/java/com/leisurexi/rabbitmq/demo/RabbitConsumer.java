@@ -1,10 +1,10 @@
 package com.leisurexi.rabbitmq.demo;
 
+import com.leisurexi.rabbitmq.config.RabbitMQConfig;
 import com.rabbitmq.client.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -16,22 +16,14 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RabbitConsumer {
 
-    private static final String QUEUE_NAME = "queue_demo";
-    private static final String IP_ADDRESS = "127.0.0.1";
-    private static final int PORT = 5672;
-
     public static void main(String[] args) {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        Address[] addresses = new Address[]{new Address(IP_ADDRESS, PORT)};
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setUsername("guest");
-        factory.setPassword("guest");
+        ConnectionFactory factory = RabbitMQConfig.createConnectionFactory();
         //创建连接
         Connection connection = null;
         //创建通道
         Channel channel = null;
         try {
-            connection = factory.newConnection(addresses);
+            connection = factory.newConnection();
             channel = connection.createChannel();
             //设置客户端最多接收未被ack的消息的个数
             channel.basicQos(64);
@@ -46,11 +38,9 @@ public class RabbitConsumer {
                         e.printStackTrace();
                     }
                     _channel.basicAck(envelope.getDeliveryTag(), false);
-                    countDownLatch.countDown();
                 }
             };
-            channel.basicConsume("queue.priority", consumer);
-            countDownLatch.await();
+            channel.basicConsume("queue.dlx", consumer);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

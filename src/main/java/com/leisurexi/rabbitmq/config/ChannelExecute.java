@@ -1,6 +1,4 @@
-package com.leisurexi.rabbitmq;
-
-import com.rabbitmq.client.Channel;
+package com.leisurexi.rabbitmq.config;
 
 import java.io.IOException;
 
@@ -11,8 +9,8 @@ import java.io.IOException;
  * @since JDK 1.8
  */
 @FunctionalInterface
-public interface SendMessage {
+public interface ChannelExecute {
 
-    void execute(Channel channel) throws IOException;
+    void execute(com.rabbitmq.client.Channel channel) throws IOException;
 
 }
