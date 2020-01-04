@@ -283,4 +283,44 @@ public class RabbitProducer {
         });
     }
 
+    /**
+     * 测试发送方确认
+     */
+    @Test
+    public void test6() {
+        String exchange = "exchange.confirm";
+        String queue = "queue.confirm";
+        RabbitMQConfig.execute(channel -> {
+            channel.exchangeDeclare(exchange, BuiltinExchangeType.DIRECT, true);
+            channel.queueDeclare(queue, true, false, false, null);
+            channel.queueBind(queue, exchange, "");
+            //将信道设置为 publisher confirm 模式
+            channel.confirmSelect();
+            channel.basicPublish(exchange, "", true,
+                    MessageProperties.PERSISTENT_TEXT_PLAIN, "publisher confirm test".getBytes());
+            channel.basicPublish(exchange, "adsad", true,
+                    MessageProperties.PERSISTENT_TEXT_PLAIN, "publisher confirm test".getBytes());
+            channel.addConfirmListener(new ConfirmListener() {
+                @Override
+                public void handleAck(long deliveryTag, boolean multiple) throws IOException {
+                    log.info("消息发送到交换器成功。deliveryTag: {}, multiple: {}", deliveryTag, multiple);
+                }
+
+                @Override
+                public void handleNack(long deliveryTag, boolean multiple) throws IOException {
+                    log.info("消息发送到交换器失败。deliveryTag: {}, multiple: {}", deliveryTag, multiple);
+                }
+            });
+            channel.addReturnListener((replyCode, replyText, exchange1, routingKey, properties, body) -> {
+                log.error("消息未成功发送到队列");
+                log.info("replyCode: {}", replyCode);
+                log.info("replyText: {}", replyText);
+                log.info("exchange: {}", exchange);
+                log.info("routingKey: {}", routingKey);
+                log.info("properties: {}", properties.toString());
+                log.info("body: {}", new String(body));
+            });
+        });
+    }
+
 }
