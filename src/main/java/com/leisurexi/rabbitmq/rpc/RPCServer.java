@@ -8,7 +8,6 @@ import com.rabbitmq.client.Envelope;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * @author: leisurexi
@@ -20,10 +19,12 @@ import java.io.UnsupportedEncodingException;
 public class RPCServer {
 
     private static final String RPC_QUEUE_NAME = "rpc.queue";
+    private static final String REPLY_QUEUE_NAME = "reply.queue";
 
     public static void main(String[] args) {
         RabbitMQConfig.execute(channel -> {
             channel.queueDeclare(RPC_QUEUE_NAME, false, false, false, null);
+            channel.queueDeclare(REPLY_QUEUE_NAME, false, false, false, null);
             //该消费者在接收到队列里的消息但没有返回确认结果之前，队列不会将新的消息分发给该消费者
             channel.basicQos(1);
             log.info("Awaiting RPC requests");
@@ -37,10 +38,10 @@ public class RPCServer {
                     try {
                         String message = new String(body);
                         log.info("客户端发来的信息: {}", message);
-                        response = "我收到了你的消息: " + message;
+                        response = "SUCCESS";
                     } finally {
                         try {
-                            channel.basicPublish("", properties.getReplyTo(), replyProps, response.getBytes());
+                            channel.basicPublish("", "reply.queue", replyProps, response.getBytes());
                             channel.basicAck(envelope.getDeliveryTag(), false);
                         } catch (IOException e) {
                             e.printStackTrace();

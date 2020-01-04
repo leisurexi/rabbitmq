@@ -27,8 +27,8 @@ public class RPCClient {
                     .replyTo(channel.queueDeclare().getQueue())
                     .build();
             channel.basicPublish("", RPC_QUEUE, properties, message.getBytes());
-
-            channel.basicConsume(RPC_QUEUE, true, new DefaultConsumer(channel) {
+            log.info(channel.queueDeclare().getQueue());
+            channel.basicConsume("reply.queue", true, new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                     if (properties.getCorrelationId().equals(corrId)) {
