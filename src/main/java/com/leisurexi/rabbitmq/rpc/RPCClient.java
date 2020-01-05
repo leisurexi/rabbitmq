@@ -16,8 +16,8 @@ import java.util.UUID;
 @Slf4j
 public class RPCClient {
 
-    private static final String RPC_QUEUE = "rpc.queue";
-    private static final String REPLY_QUEUE = "reply.queue";
+    private static final String RPC_QUEUE_NAME = "queue.rpc";
+    private static final String REPLY_QUEUE_NAME = "queue.reply";
 
     public static void main(String[] args) {
         RabbitMQConfig.execute(channel -> {
@@ -27,9 +27,9 @@ public class RPCClient {
                     .correlationId(corrId)
                     .replyTo(channel.queueDeclare().getQueue())
                     .build();
-            channel.basicPublish("", RPC_QUEUE, properties, message.getBytes());
+            channel.basicPublish("", RPC_QUEUE_NAME, properties, message.getBytes());
             log.info(channel.queueDeclare().getQueue());
-            channel.basicConsume(REPLY_QUEUE, true, new DefaultConsumer(channel) {
+            channel.basicConsume(REPLY_QUEUE_NAME, true, new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                     if (properties.getCorrelationId().equals(corrId)) {

@@ -18,8 +18,8 @@ import java.io.IOException;
 @Slf4j
 public class RPCServer {
 
-    private static final String RPC_QUEUE_NAME = "rpc.queue";
-    private static final String REPLY_QUEUE_NAME = "reply.queue";
+    private static final String RPC_QUEUE_NAME = "queue.rpc";
+    private static final String REPLY_QUEUE_NAME = "queue.reply";
 
     public static void main(String[] args) {
         RabbitMQConfig.execute(channel -> {
