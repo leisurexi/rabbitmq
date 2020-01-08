@@ -57,8 +57,6 @@ public class EncapsulationTest {
                         return ConsumeStatus.FALL;
                     });
         });
-
-
     }
 
 }
