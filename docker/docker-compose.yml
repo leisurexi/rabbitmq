@@ -1,0 +1,86 @@
+version: "3"
+services:
+
+  master:
+    image: bitnami/rabbitmq
+    container_name: rmq-master
+    restart: always
+    networks:
+      rmq-net:
+        ipv4_address: 10.9.0.10
+    hostname: rmq-master
+    ports:
+      - '15672:15672'
+    volumes:
+      - './master-data:/bitnami'
+    environment:
+      - RABBITMQ_NODE_TYPE=stats
+      - RABBITMQ_NODE_NAME=rabbit@rmq-master
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3  
+      - TZ=Asia/Shanghai
+
+  slave1:
+    image: bitnami/rabbitmq
+    container_name: rmq-slave1
+    restart: always
+    depends_on:
+      - master
+    networks:
+      rmq-net:
+        ipv4_address: 10.9.0.11
+    hostname: rmq-slave1
+    volumes:
+      - './slave1-data:/bitnami'
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-ram
+      - RABBITMQ_NODE_NAME=rabbit@rmq-slave1
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rmq-master
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      - TZ=Asia/Shanghai
+
+  slave2:
+    image: bitnami/rabbitmq
+    container_name: rmq-slave2
+    restart: always
+    depends_on:
+      - master
+    networks:
+      rmq-net:
+        ipv4_address: 10.9.0.12
+    hostname: rmq-slave2
+    volumes:
+      - './slave2-data:/bitnami'
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-ram
+      - RABBITMQ_NODE_NAME=rabbit@rmq-slave2
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rmq-master
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      - TZ=Asia/Shanghai
+  
+  haproxy:
+    image: haproxy:1.8
+    container_name: rmq-proxy
+    restart: always
+    depends_on:
+      - master
+      - slave1
+      - slave2
+    networks:
+      rmq-net:
+        ipv4_address: 10.9.0.13
+    hostname: rmq-proxy
+    ports:
+      - "5672:5672"
+      - "1080:1080"
+    volumes:
+      - "./conf/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro"
+    environment:
+      - CONTAINER_NAME=rmq-proxy
+      - TZ=Asia/Shanghai
+
+networks:
+  rmq-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.9.0.0/16
