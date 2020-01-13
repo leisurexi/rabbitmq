@@ -42,23 +42,23 @@ public class RabbitMQConfig {
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
-//        finally {
-//            try {
-//                TimeUnit.SECONDS.sleep(10);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            try {
-//                if (channel != null) {
-//                    channel.close();
-//                }
-//                if (connection != null) {
-//                    connection.close();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+        finally {
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (channel != null) {
+                    channel.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void executeConnection(ConnectionExecute connectionExecute) {

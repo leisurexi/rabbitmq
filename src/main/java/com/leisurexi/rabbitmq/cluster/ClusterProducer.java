@@ -1,9 +1,11 @@
 package com.leisurexi.rabbitmq.cluster;
 
 import com.leisurexi.rabbitmq.config.RabbitMQConfig;
-import com.rabbitmq.client.BuiltinExchangeType;
-import com.rabbitmq.client.MessageProperties;
+import com.rabbitmq.client.*;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -15,11 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ClusterProducer {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, TimeoutException {
         String exchange = "exchange.cluster";
         String queue = "queue.cluster";
         String routingKey = "cluster";
-        RabbitMQConfig.execute(channel -> {
+        ConnectionFactory factory = RabbitMQConfig.createConnectionFactory();
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+        try {
             channel.exchangeDeclare(exchange, BuiltinExchangeType.DIRECT, true);
             channel.queueDeclare(queue, true, false, false, null);
             channel.queueBind(queue, exchange, routingKey);
@@ -27,7 +32,14 @@ public class ClusterProducer {
                 String msg = "集群测试消息-" + i;
                 channel.basicPublish(exchange, routingKey, MessageProperties.PERSISTENT_TEXT_PLAIN, msg.getBytes());
             }
-        });
+        } finally {
+            if (channel != null) {
+                channel.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
     }
 
 }
