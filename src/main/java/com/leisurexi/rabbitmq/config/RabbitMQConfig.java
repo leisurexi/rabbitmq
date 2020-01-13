@@ -23,8 +23,8 @@ public class RabbitMQConfig {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(IP_ADDRESS);
         factory.setPort(PORT);
-        factory.setUsername("guest");
-        factory.setPassword("guest");
+        factory.setUsername("user");
+        factory.setPassword("bitnami");
         factory.setVirtualHost("leisurexi");
         return factory;
     }
@@ -41,23 +41,24 @@ public class RabbitMQConfig {
             e.printStackTrace();
         } catch (TimeoutException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                TimeUnit.SECONDS.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (channel != null) {
-                    channel.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
+//        finally {
+//            try {
+//                TimeUnit.SECONDS.sleep(10);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            try {
+//                if (channel != null) {
+//                    channel.close();
+//                }
+//                if (connection != null) {
+//                    connection.close();
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     public static void executeConnection(ConnectionExecute connectionExecute) {

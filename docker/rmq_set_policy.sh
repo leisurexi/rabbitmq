@@ -1,1 +1,1 @@
-docker exec -it rmq-master rabbitmqctl set_policy ha-all '^' '{"ha-mode":"all"}'
+docker exec -it rmq-master rabbitmqctl set_policy -p leisurexi ha-all '^' '{"ha-mode":"all"}'

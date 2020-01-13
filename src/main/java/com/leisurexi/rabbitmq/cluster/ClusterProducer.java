@@ -2,7 +2,6 @@ package com.leisurexi.rabbitmq.cluster;
 
 import com.leisurexi.rabbitmq.config.RabbitMQConfig;
 import com.rabbitmq.client.BuiltinExchangeType;
-import com.rabbitmq.client.ConfirmListener;
 import com.rabbitmq.client.MessageProperties;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +23,7 @@ public class ClusterProducer {
             channel.exchangeDeclare(exchange, BuiltinExchangeType.DIRECT, true);
             channel.queueDeclare(queue, true, false, false, null);
             channel.queueBind(queue, exchange, routingKey);
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1000; i++) {
                 String msg = "集群测试消息-" + i;
                 channel.basicPublish(exchange, routingKey, MessageProperties.PERSISTENT_TEXT_PLAIN, msg.getBytes());
             }
